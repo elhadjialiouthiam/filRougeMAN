@@ -30,7 +30,8 @@ class UserFixtures extends Fixture
             $users->setNom($faker->lastname);
             $users->setPassword($harsh);
             $users->setEmail($faker->email);
-            $users->setProfil($this->getReference(ProfilFixtures::PROFIL));
+            //$users->setProfil($this->getReference(ProfilFixtures::PROFIL));
+            $users->setProfil($this->getReference($p));
 
             // persist
             $manager->persist($users);

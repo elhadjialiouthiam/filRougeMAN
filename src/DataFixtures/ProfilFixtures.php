@@ -8,7 +8,7 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 
 class ProfilFixtures extends Fixture
 {
-    public const PROFIL = 'admin';
+    //public const PROFIL = 'admin';
     public function load(ObjectManager $manager)
     {
         // $product = new Product();
@@ -18,7 +18,8 @@ class ProfilFixtures extends Fixture
         // $tab = implode(",", $tab);
         for ($p=0; $p < 4; $p++) { 
             $profil = new Profil();
-            $this->setReference(self::PROFIL, $profil);
+           // $this->setReference(self::PROFIL, $profil);
+           $this->setReference($p, $profil);
             // profiles
             $profil->setLibelle($tab[$p]);
 
