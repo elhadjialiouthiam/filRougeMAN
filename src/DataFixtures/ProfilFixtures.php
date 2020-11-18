@@ -8,7 +8,10 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 
 class ProfilFixtures extends Fixture
 {
-    //public const PROFIL = 'admin';
+    public const PROFIL_admin = 'admin';
+    public const PROFIL_apprenant = 'apprenant';
+    public const PROFIL_formateur = 'formateur';
+    public const PROFIL_cm = 'CM';
     public function load(ObjectManager $manager)
     {
         // $product = new Product();
@@ -16,12 +19,27 @@ class ProfilFixtures extends Fixture
         // configurer la langue
         $tab = ['admin','formateur','CM','apprenant'];
         // $tab = implode(",", $tab);
-        for ($p=0; $p < 4; $p++) { 
+        for ($p=0; $p < count($tab); $p++) { 
             $profil = new Profil();
            // $this->setReference(self::PROFIL, $profil);
-           $this->setReference($p, $profil);
+           //$this->setReference($p, $profil);
             // profiles
             $profil->setLibelle($tab[$p]);
+            if($tab[$p]=='admin'){
+                $this->addReference(self::PROFIL_admin,$profil);
+            }
+            elseif($tab[$p]=='apprenant'){
+                $this->addReference(self::PROFIL_apprenant,$profil);
+
+            }
+            elseif($tab[$p]=='formateur'){
+                $this->addReference(self::PROFIL_formateur,$profil);
+
+            }
+            elseif($tab[$p]=='CM'){
+                $this->addReference(self::PROFIL_cm,$profil);
+
+            }
 
             // persist
             $manager->persist($profil);

@@ -7,6 +7,9 @@ use App\Repository\ProfilRepository;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ProfilRepository::class)
@@ -14,27 +17,35 @@ use Doctrine\Common\Collections\ArrayCollection;
  * routePrefix="/admin",
  * collectionOperations={
  *         "get",
- *         "post"={"security"="is_granted('ROLE_admin')", "security_message"="seul les admins peuvent ajouter un profil."}
+ *         "post"={"security"="is_granted('ROLE_ADMIN')", "security_message"="seul les admins peuvent ajouter un profil."}
  *     },
  * itemOperations={
  *         "get",
- *         "put"={"security"="is_granted('ROLE_admin')", "security_message"="seul les admins peuvent modifier un profil."},
- *         "delete"={"security"="is_granted('ROLE_admin')", "security_message"="seul les admins peuvent supprimer un profil."}
- *     }
+ *         "put"={"security"="is_granted('ROLE_ADMIN')", "security_message"="seul les admins peuvent modifier un profil."},
+ *         "delete"={"security"="is_granted('ROLE_ADMIN')", "security_message"="seul les admins peuvent supprimer un profil."}
+ *     },
+ *      
+ *              normalizationContext={"groups"={"profil:read"}},
+ *              denormalizationContext={"groups"={"profil:write"}}
  * )
  */
 class Profil
 {
-    const PROFIL_TYPE = ['admin', 'formateur','CM','apprenant'];
+    const ALLOWED_PROFILS = ["admin", "formateur", "CM","apprenant","vigil"];
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups("profil:read")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"profil:read", "profil:write"})
+     * @Assert\NotBlank(message = "Le libelle ne peut pas etre vide")
+     * @Assert\Choice(choices=Profil::ALLOWED_PROFILS, message="Donner un profil valide")
      */
     private $libelle;
 
