@@ -2,27 +2,38 @@
 
 namespace App\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
+ * @UniqueEntity("email")
+ * @UniqueEntity("libelle")
  * @ApiResource(
  * routePrefix="/admin",
  * denormalizationContext={"groups":{"user:write"}},
  * normalizationContext={"groups":{"user:read"}},
  * collectionOperations={
  *         "get",
- *         "post"={"security"="is_granted('ROLE_ADMIN')", "security_message"="seul les admins peuvent ajouter un utilusateur."}
+ *         "add_user"={
+ *                  "route_name"="add_user",
+ *                  "method"="POST",
+ *                  "denormalization_context"={"groups":"add_user:write"},
+ *                  "security" = "is_granted('ROLE_ADMIN')",
+ *                  "security_message" = "Accès refusé"
+ *          },
  *     },
  * itemOperations={
  *         "get",
@@ -53,7 +64,7 @@ class User implements UserInterface
      * message="Email Invalide"
      * )
      */
-    private $email;
+    protected $email;
 
     private $roles = [];
 
@@ -82,12 +93,19 @@ class User implements UserInterface
      * @Groups({"user:write", "user:read"})
      */
     private $profil;
-
+    /** 
+    *@ORM\Column(type="blob", nullable=true)
+    *@Groups({"user:write"})
+    */
     
     private $avatar;
 
-   
-    private $statut;
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $Statut ;
+
+
 
     public function getId(): ?int
     {
@@ -210,16 +228,18 @@ class User implements UserInterface
         return (string) $this->email;
     }
 
-    public function getStatut(): ?string
+    public function getStatut(): ?bool
     {
-        return $this->statut;
+        return $this->Statut;
     }
 
-    public function setStatut(string $statut): self
+    public function setStatut(bool $Statut): self
     {
-        $this->statut = $statut;
+        $this->Statut = $Statut;
 
         return $this;
     }
+
+
 
 }

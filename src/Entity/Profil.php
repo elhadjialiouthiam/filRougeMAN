@@ -4,15 +4,26 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ProfilRepository;
+use ApiPlatform\Core\Annotation\ApiFilter;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+
+
 
 /**
  * @ORM\Entity(repositoryClass=ProfilRepository::class)
+ * @UniqueEntity("libelle")
+ *@ApiFilter(
+ * BooleanFilter::class, properties={"statut"}
+ * )
  * @ApiResource(
  * routePrefix="/admin",
  * collectionOperations={
@@ -29,9 +40,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  *              denormalizationContext={"groups"={"profil:write"}}
  * )
  */
+
 class Profil
 {
-    const ALLOWED_PROFILS = ["admin", "formateur", "CM","apprenant","vigil"];
 
     /**
      * @ORM\Id()
@@ -45,17 +56,22 @@ class Profil
      * @ORM\Column(type="string", length=255)
      * @Groups({"profil:read", "profil:write"})
      * @Assert\NotBlank(message = "Le libelle ne peut pas etre vide")
-     * @Assert\Choice(choices=Profil::ALLOWED_PROFILS, message="Donner un profil valide")
      */
     private $libelle;
 
     /**
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="profil")
+     * @ApiSubresource
+     * @Groups("profil:read")
      */
     private $users;
 
+    /**
+     * @ORM\Column(type="boolean")
+     * @Groups("profil:write")
+     */
+    private $statut ;
 
-    private $statut;
 
     public function __construct()
     {
@@ -113,15 +129,16 @@ class Profil
         return $this->libelle;
     }
 
-    public function getStatut(): ?string
+    public function getStatut(): ?bool
     {
         return $this->statut;
     }
 
-    public function setStatut(string $statut): self
+    public function setStatut(bool $statut): self
     {
         $this->statut = $statut;
 
         return $this;
     }
+
 }

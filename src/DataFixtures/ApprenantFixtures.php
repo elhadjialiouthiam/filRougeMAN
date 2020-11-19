@@ -34,7 +34,7 @@ class ApprenantFixtures extends Fixture implements DependentFixtureInterface
             // persist
             $manager->persist($apprenant);
             $manager->flush();
-    
+               
 }
 public function getDependencies(){
     return array(
