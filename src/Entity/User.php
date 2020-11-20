@@ -20,7 +20,6 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @UniqueEntity("email")
- * @UniqueEntity("libelle")
  * @ApiResource(
  * routePrefix="/admin",
  * denormalizationContext={"groups":{"user:write"}},
@@ -37,7 +36,11 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
  *     },
  * itemOperations={
  *         "get",
- *         "put"={"security"="is_granted('ROLE_ADMIN')", "security_message"="seul les admins peuvent modifier un utilusateur."},
+ *         "put_one_user"={
+ *               "method"="PUT",
+ *               "path"="/admin/users/{id}" ,
+ *               "security" = "is_granted('ROLE_ADMIN')","security_message" = "Accès refusé"
+ *               },
  *         "delete"={"security"="is_granted('ROLE_ADMIN')", "security_message"="seul les admins peuvent supprimer un utilusateur."}
  *     }
  * )

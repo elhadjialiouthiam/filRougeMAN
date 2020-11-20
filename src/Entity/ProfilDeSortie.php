@@ -2,12 +2,22 @@
 
 namespace App\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\ProfilDeSortieRepository;
-use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
+ * @UniqueEntity("libelle")
+ * @ApiFilter(
+ * BooleanFilter::class, properties={"statut"}
+ * )
  * @ApiResource(
+ * 
  * )
  * @ORM\Entity(repositoryClass=ProfilDeSortieRepository::class)
  */
@@ -26,9 +36,20 @@ class ProfilDeSortie
     private $libelle;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="boolean")
      */
     private $statut;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Apprenant::class, mappedBy="profilDeSortie")
+     */
+    private $Apprenant;
+
+    public function __construct()
+    {
+        $this->Apprenant = new ArrayCollection();
+    }
+
 
     public function getId(): ?int
     {
@@ -47,15 +68,48 @@ class ProfilDeSortie
         return $this;
     }
 
-    public function getStatut()
+    public function getStatut(): ?bool
     {
         return $this->statut;
     }
 
-    public function setStatut($statut): self
+    public function setStatut(bool $statut): self
     {
         $this->statut = $statut;
 
         return $this;
     }
+
+    /**
+     * @return Collection|Apprenant[]
+     */
+    public function getApprenant(): Collection
+    {
+        return $this->Apprenant;
+    }
+
+    public function addApprenant(Apprenant $apprenant): self
+    {
+        if (!$this->Apprenant->contains($apprenant)) {
+            $this->Apprenant[] = $apprenant;
+            $apprenant->setProfilDeSortie($this);
+        }
+
+        return $this;
+    }
+
+    public function removeApprenant(Apprenant $apprenant): self
+    {
+        if ($this->Apprenant->contains($apprenant)) {
+            $this->Apprenant->removeElement($apprenant);
+            // set the owning side to null (unless already changed)
+            if ($apprenant->getProfilDeSortie() === $this) {
+                $apprenant->setProfilDeSortie(null);
+            }
+        }
+
+        return $this;
+    }
+
+    
 }
