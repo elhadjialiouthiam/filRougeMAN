@@ -26,18 +26,34 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * )
  * @ApiResource(
  * routePrefix="/admin",
+ * 
+ *              normalizationContext={"groups"={"profil:read"}},
+ *              denormalizationContext={"groups"={"profil:write"}},
  * collectionOperations={
- *         "get",
- *         "post"={"security"="is_granted('ROLE_ADMIN')", "security_message"="seul les admins peuvent ajouter un profil."}
+ *         "get"={
+ *         "security"="is_granted('ROLE_ADMIN')", 
+ *         "security_message"="seul les admins peuvent ajouter un profil."
+ * },
+ *         "post"={
+ *         "security"="is_granted('ROLE_ADMIN')", 
+ *         "security_message"="seul les admins peuvent ajouter un profil."
+ * }
  *     },
  * itemOperations={
- *         "get",
- *         "put"={"security"="is_granted('ROLE_ADMIN')", "security_message"="seul les admins peuvent modifier un profil."},
- *         "delete"={"security"="is_granted('ROLE_ADMIN')", "security_message"="seul les admins peuvent supprimer un profil."}
+ *         "get"={
+ *         "security"="is_granted('ROLE_ADMIN')", 
+ *         "security_message"="seul les admins peuvent ajouter un profil."
+ * },
+ *         "put"={
+ *              "security"="is_granted('ROLE_ADMIN')", 
+ *              "security_message"="seul les admins peuvent modifier un profil."
+ * },
+ *         "delete"={
+ *              "security"="is_granted('ROLE_ADMIN')", 
+ *              "security_message"="seul les admins peuvent supprimer un profil."
+ * }
  *     },
  *      
- *              normalizationContext={"groups"={"profil:read"}},
- *              denormalizationContext={"groups"={"profil:write"}}
  * )
  */
 
@@ -68,9 +84,8 @@ class Profil
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups("profil:write")
      */
-    private $statut ;
+    private $statut=false ;
 
 
     public function __construct()

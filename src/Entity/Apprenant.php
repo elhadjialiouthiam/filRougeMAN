@@ -9,8 +9,6 @@ use ApiPlatform\Core\Annotation\ApiResource;
 
 /**
  * @ORM\Entity(repositoryClass=ApprenantRepository::class)
- * @ApiResource(
- * )
  */
 class Apprenant extends User
 {

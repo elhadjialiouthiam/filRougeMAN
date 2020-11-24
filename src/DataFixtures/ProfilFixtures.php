@@ -18,11 +18,9 @@ class ProfilFixtures extends Fixture
         // $manager->persist($product);
         // configurer la langue
         $tab = ['admin','formateur','CM','apprenant'];
-        // $tab = implode(",", $tab);
+
         for ($p=0; $p < count($tab); $p++) { 
             $profil = new Profil();
-           // $this->setReference(self::PROFIL, $profil);
-           //$this->setReference($p, $profil);
             // profiles
             $profil->setLibelle($tab[$p]);
             if($tab[$p]=='admin'){

@@ -8,7 +8,6 @@ use App\Repository\FormateurRepository;
 use ApiPlatform\Core\Annotation\ApiResource;
 
 /**
- * @ApiResource()
  * @ORM\Entity(repositoryClass=FormateurRepository::class)
  */
 class Formateur extends User

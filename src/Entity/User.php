@@ -4,10 +4,13 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
+use Doctrine\ORM\Mapping\InheritanceType;
 use ApiPlatform\Core\Annotation\ApiFilter;
+use Doctrine\ORM\Mapping\DiscriminatorMap;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -26,8 +29,29 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
  * normalizationContext={"groups":{"user:read"}},
  * collectionOperations={
  *         "get",
- *         "add_user"={
- *                  "route_name"="add_user",
+ *         "add_admin"={
+ *                  "route_name"="add_admin",
+ *                  "method"="POST",
+ *                  "denormalization_context"={"groups":"add_user:write"},
+ *                  "security" = "is_granted('ROLE_ADMIN')",
+ *                  "security_message" = "Accès refusé"
+ *          },
+ *          "add_formateur"={
+ *                  "route_name"="add_formateur",
+ *                  "method"="POST",
+ *                  "denormalization_context"={"groups":"add_user:write"},
+ *                  "security" = "is_granted('ROLE_ADMIN')",
+ *                  "security_message" = "Accès refusé"
+ *          },
+ *          "add_apprenant"={
+ *                  "route_name"="add_apprenant",
+ *                  "method"="POST",
+ *                  "denormalization_context"={"groups":"add_user:write"},
+ *                  "security" = "is_granted('ROLE_ADMIN')",
+ *                  "security_message" = "Accès refusé"
+ *          },
+ *          "add_cm"={
+ *                  "route_name"="add_cm",
  *                  "method"="POST",
  *                  "denormalization_context"={"groups":"add_user:write"},
  *                  "security" = "is_granted('ROLE_ADMIN')",
@@ -36,11 +60,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
  *     },
  * itemOperations={
  *         "get",
- *         "put_one_user"={
- *               "method"="PUT",
- *               "path"="/admin/users/{id}" ,
- *               "security" = "is_granted('ROLE_ADMIN')","security_message" = "Accès refusé"
- *               },
+ *         "PUT"={"security"="is_granted('ROLE_ADMIN')", "security_message"="seul les admins peuvent modifier un profil."},
  *         "delete"={"security"="is_granted('ROLE_ADMIN')", "security_message"="seul les admins peuvent supprimer un utilusateur."}
  *     }
  * )

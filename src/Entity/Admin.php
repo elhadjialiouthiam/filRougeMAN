@@ -8,7 +8,6 @@ use App\Repository\AdminRepository;
 use ApiPlatform\Core\Annotation\ApiResource;
 
 /**
- * @ApiResource()
  * @ORM\Entity(repositoryClass=AdminRepository::class)
  */
 class Admin extends User
