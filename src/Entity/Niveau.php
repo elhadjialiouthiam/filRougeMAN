@@ -4,10 +4,15 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\NiveauRepository;
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 
 /**
+ * @ApiFilter(
+ * BooleanFilter::class, properties={"statut"}
+ * )
  * @ApiResource(
  *  routePrefix="/admin",
  * )
@@ -24,22 +29,23 @@ class Niveau
     private $id;
 
     /**
+     * @ORM\Column(type="string", length=255)
+     * @Groups({"competence:read","gc:write", "competence_only"})
+     */
+    private $libelle;
+
+    /**
      * @ORM\Column(type="text")
-     * @Groups({"competence:read", "competence_only"})
+     * @Groups({"competence:read","gc:write", "competence_only"})
      */
     private $critereEvaluation;
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"competence:read", "competence_only"})
+     * @Groups({"competence:read","gc:write", "competence_only"})
      */
     private $groupeAction;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"competence:read", "competence_only"})
-     */
-    private $libelle;
 
     /**
      * @ORM\ManyToOne(targetEntity=Competence::class, inversedBy="niveaux")

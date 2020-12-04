@@ -19,21 +19,25 @@ class FormateurFixtures extends Fixture implements DependentFixtureInterface
     }
     public function load(ObjectManager $manager)
     {
-        // $product = new Product();
-        // $manager->persist($product);
-            $faker = Factory::create('fr_FR');
-            $formateur = new Formateur();
-            $harsh = $this->encoder->encodePassword($formateur, 'password');
-            // formateur
-            $formateur->setPrenom($faker->firstname);
-            $formateur->setNom($faker->lastname);
-            $formateur->setPassword($harsh);
-            $formateur->setEmail($faker->email);
-            $formateur->setProfil($this->getReference(ProfilFixtures::PROFIL_formateur));
-            //$formateur->setProfil($this->getReference($p));
+
+        $faker = Factory::create('fr_FR');
+
+        for($a=1;$a<=4;$a++){
+            $Formateur = new Formateur();
+            $harsh = $this->encoder->encodePassword($Formateur, 'password');
+            // Formateur
+            $Formateur->setPrenom($faker->firstname);
+            $Formateur->setNom($faker->lastname);
+            $Formateur->setAvatar($faker->imageUrl());
+            $Formateur->setPassword($harsh);
+            $Formateur->setEmail($faker->email);
+            $Formateur->setProfil($this->getReference(ProfilFixtures::PROFIL_formateur));
+            $manager->persist($Formateur);
+            
+        }
             // persist
-            $manager->persist($formateur);
             $manager->flush();
+               
 }
 public function getDependencies(){
     return array(

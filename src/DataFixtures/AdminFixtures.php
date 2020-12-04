@@ -27,6 +27,7 @@ class AdminFixtures extends Fixture implements DependentFixtureInterface
             // admin
             $admin->setPrenom($faker->firstname);
             $admin->setNom($faker->lastname);
+            $admin->setAvatar($faker->imageUrl());
             $admin->setPassword($harsh);
             $admin->setEmail($faker->email);
             $admin->setProfil($this->getReference(ProfilFixtures::PROFIL_admin));

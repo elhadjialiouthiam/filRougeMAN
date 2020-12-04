@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\ProfilDeSortieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
@@ -17,7 +18,39 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * BooleanFilter::class, properties={"statut"}
  * )
  * @ApiResource(
- * 
+ *  routePrefix="/admin",
+ *    collectionOperations={
+ *      "addProfiDeSortie"={
+ *          "method"="post",
+ *          "denormalization_context"={"groups"="addProfiDeSortie:write"},
+ *          "security" = "(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR'))",
+ *           "security_message" = "Accès non autorisé",
+ * },
+ *      "show_profil_sortie" = {
+ *          "method"="GET",
+ *          "normalization_context"={"groups":"profilsortie:read"},
+ *          "security" = "(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR'))",
+ *           "security_message" = "Accès non autorisé",
+ * },
+ * },
+ *    itemOperations={
+ *          "getStudentsOfAPs"={
+ *              "method"="get",
+ *              "normalization_context"={"groups":"Oneprofilsortie:read"},
+ *              "security" = "(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR'))",
+ *              "security_message" = "Accès non autorisé",
+ * },
+ *          "update_ps"={
+ *              "method"="put",
+ *              "denormalization_context"={"groups"="editProfiDeSortie:write"},
+ *              "security" = "(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR'))",
+ *              "security_message" = "Accès non autorisé",
+ * },
+ *          "delete"={
+ *              "security"="(is_granted('ROLE_ADMIN') or is_granted('ROLE_FORMATEUR'))",
+ *              "security_message" = "Accès non autorisé",
+ *          },
+ * },
  * )
  * @ORM\Entity(repositoryClass=ProfilDeSortieRepository::class)
  */
@@ -32,16 +65,19 @@ class ProfilDeSortie
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"editProfiDeSortie:write", "addProfiDeSortie:write" ,"profilsortie:read","Oneprofilsortie:read"})
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"editProfiDeSortie:write"})
      */
-    private $statut;
+    private $statut=false;
 
     /**
      * @ORM\OneToMany(targetEntity=Apprenant::class, mappedBy="profilDeSortie")
+     * @Groups({"Oneprofilsortie:read"})
      */
     private $Apprenant;
 

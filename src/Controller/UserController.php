@@ -5,11 +5,15 @@ namespace App\Controller;
 use App\Entity\CM;
 use App\Entity\User;
 use App\Entity\Admin;
+use App\Entity\Profil;
 use App\Entity\Apprenant;
 use App\Entity\Formateur;
+use App\Service\UserService;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use ApiPlatform\Core\Api\IriConverterInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -19,44 +23,25 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class UserController extends AbstractController
 {
-    private $serializer;
-    private $validator;
+    private $UserService;
     private $manager;
-    public function __construct(UserPasswordEncoderInterface $encoder , SerializerInterface $serializer,  EntityManagerInterface $manager, ValidatorInterface $validator )
-    {
-        $this->encoder = $encoder;
-        $this->serializer = $serializer;
+    private $repository;
+    private $iriToObject;
+    private $validator;
+    public function __construct( 
+        UserService $UserService ,
+        UserRepository $Repository , 
+        EntityManagerInterface $manager,
+        IriConverterInterface $iriToObject,
+        ValidatorInterface $validator)
+        {
+        $this->manager= $manager;
+        $this->UserService = $UserService;
+        $this->Repository=$Repository;
+        $this->iriToObject = $iriToObject;
         $this->validator = $validator;
-        $this->manager = $manager;
-    }
-
-    public function add_user( $entity,Request $request){
-        //recuperation des donnees de la requette
-        $user = $request->request->all();
-        //recuperation du photo
-        $avatar = $request->files->get("avatar");
-
-        //on ouvre le fichier et on le lit en format binaire
-        $avatar = fopen($avatar->getRealPath(), "rb");
-       
-        $user = $this->serializer->denormalize($user, $entity, true);
-        //dd($user->getProfil());
-        $errors = $this->validator->validate($user);
-        if(count($errors) > 0){
-            $errors = $this->serializer->serialize($errors,'json');
-           // dd($errors);
-            return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
         }
-        $user->setProfil($user->getProfil());
-        $user->setStatut("0");
-        $user->setAvatar($avatar);
-        $user->setPassword($this->encoder->encodePassword($user,"password"));
-        $this->manager->persist($user);
-        $this->manager->flush();
-        fclose($avatar);
-        return new JsonResponse("Utulisateur Créé avec success",Response::HTTP_CREATED,[],true);
-
-    }
+    
        /**  
      * @Route(
      * name="add_cm",
@@ -70,23 +55,23 @@ class UserController extends AbstractController
      * )
      */
     public function addCM(Request $request){
-        return $this->add_user("App\Entity\CM", $request);
+        return $this->UserService->add_user("App\Entity\CM", $request);
     }
-/**
+    /**
      * @Route(
      * name="add_apprenant",
      * path="api/admin/users/apprenants",
      * methods={"POST"},
      * defaults={
      * "_controller"="app\Controller\UserController::addApprenant",
-     * "_api_resource_class"=User::class,
+     * "_api_resource_class"=Apprenant::class,
      * "api_collection_operation_name"="add_apprenant"
      * }
      * )
      */
     public function addApprenant(Request $request)
     {
-        return $this->add_user("App\Entity\Apprenant", $request);
+        return $this->UserService->add_user("App\Entity\Apprenant", $request);
     }
        /**
      * @Route(
@@ -102,7 +87,7 @@ class UserController extends AbstractController
      */
     public function addFormateur(Request $request)
     {
-        return $this->add_user("App\Entity\Formateur", $request);
+        return $this->UserService->add_user("App\Entity\Formateur", $request);
     }
 
     /**
@@ -112,13 +97,66 @@ class UserController extends AbstractController
      * methods={"POST"},
      * defaults={
      * "_controller"="app\Controller\UserController::addAdmin",
-     * "_api_resource_class"=User::class,
+     * "_api_resource_class"=Admin::class,
      * "api_collection_operation_name"="add_admin"
      * }
      * )
      */
     public function addAdmin(Request $request){
-        return $this->add_user("App\Entity\Admin", $request);
+        return $this->UserService->add_user("App\Entity\Admin", $request);
     }
+   /**  
+     * @Route(
+     * name="edit_user",
+     * path="api/admin/users/{id}",
+     * methods={"PUT"},
+     * defaults={
+     * "_controller"="app\Controller\UserController::edit_user",
+     * "_api_resource_class"=User::class,
+     * "api_item_operation_name"="edit_user"
+     * }
+     * )
+     */
+    public function edit_user(Request $request, int $id){
+        $user=$this->Repository->find($id);
+        $data=$request->request->all();
+        
+        foreach($data as $key=>$d){
+            
+            if($key != "_method" || !$d){
+
+                if($key==='profil')
+                {
+                    $user->setProfil($this->iriToObject->getItemFromIri($d));
+                    $user->settype($this->iriToObject->getItemFromIri($d)->getlibelle());
+                    
+                }else
+                {
+                    $user->{"set".ucfirst($key)}($d);
+                }
+            }
+        }
+
+        //$user->settype($this->Profil->getlibelle());
+        //dd($user);
+        
+      // dd($user);
+        // $errors=$this->validator->validate($user);
+        // if(count($errors)){
+        //     $errors = $this->serializer->serialize($errors,'json');
+        //     return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
+        // }
+        // $avatar=$request->file->get("avatar");
+        // $avatar = fopen($avatar->getRealPath(), "rb");
+        // if($avatar){
+        //     $user->setAvatar($avatar);
+        // }
+        $this->manager->persist($user);
+        $this->manager->flush();
+        return new JsonResponse("Utulisateur mis a jour avec success",Response::HTTP_CREATED,[],true);
+    }
+
+
+    
 
 }

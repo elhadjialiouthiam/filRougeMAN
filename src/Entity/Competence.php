@@ -61,13 +61,13 @@ class Competence
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"competence:write", "competence:read" ,"niveau:write", "competence_only"})
+     * @Groups({"competence:write","gc:write" ,"competence:read" ,"niveau:write", "competence_only"})
      */
     private $libelle;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"competence:write", "competence:read" , "competence_only"})
+     * @Groups({"competence:write","gc:write", "competence:read" , "competence_only"})
      */
     private $descriptif;
 
@@ -83,7 +83,7 @@ class Competence
 
     /**
      * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="competence")
-     * @Groups({"competence:write", "competence:read" ,"competence_only"})
+     * @Groups({"competence:write","gc:write", "competence:read" ,"competence_only"})
      */
     private $niveaux;
 

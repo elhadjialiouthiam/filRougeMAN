@@ -69,7 +69,7 @@ class GroupeDeCompetence
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"gc:write","competence_only"})
+     * @Groups({"gc:write","competence_only","grpecompetence_only"})
      */
     private $libelle;
 
@@ -82,7 +82,7 @@ class GroupeDeCompetence
     /**
      * @ORM\Column(type="boolean")
      */
-    private $statut;
+    private $statut=false;
 
     /**
      * @ORM\ManyToMany(targetEntity=Competence::class, inversedBy="groupeDeCompetences")
@@ -90,9 +90,15 @@ class GroupeDeCompetence
      */
     private $competences;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Referentiel::class, mappedBy="groupeDeCompetence")
+     */
+    private $referentiels;
+
     public function __construct()
     {
         $this->competences = new ArrayCollection();
+        $this->referentiels = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -157,6 +163,34 @@ class GroupeDeCompetence
     {
         if ($this->competences->contains($competence)) {
             $this->competences->removeElement($competence);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Referentiel[]
+     */
+    public function getReferentiels(): Collection
+    {
+        return $this->referentiels;
+    }
+
+    public function addReferentiel(Referentiel $referentiel): self
+    {
+        if (!$this->referentiels->contains($referentiel)) {
+            $this->referentiels[] = $referentiel;
+            $referentiel->addGroupeDeCompetence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReferentiel(Referentiel $referentiel): self
+    {
+        if ($this->referentiels->contains($referentiel)) {
+            $this->referentiels->removeElement($referentiel);
+            $referentiel->removeGroupeDeCompetence($this);
         }
 
         return $this;

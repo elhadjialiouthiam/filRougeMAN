@@ -23,45 +23,59 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @UniqueEntity("email")
+ * @ApiFilter(
+ * BooleanFilter::class, properties={"statut"}
+ * )
  * @ApiResource(
  * routePrefix="/admin",
  * denormalizationContext={"groups":{"user:write"}},
  * normalizationContext={"groups":{"user:read"}},
  * collectionOperations={
- *         "get",
+ *         "show_users"={
+ *                  "method"="GET",
+ *                  "access_control"="(is_granted('ROLE_ADMIN'))"
+ *          },
  *         "add_admin"={
  *                  "route_name"="add_admin",
  *                  "method"="POST",
- *                  "denormalization_context"={"groups":"add_user:write"},
  *                  "security" = "is_granted('ROLE_ADMIN')",
  *                  "security_message" = "Accès refusé"
  *          },
  *          "add_formateur"={
  *                  "route_name"="add_formateur",
  *                  "method"="POST",
- *                  "denormalization_context"={"groups":"add_user:write"},
  *                  "security" = "is_granted('ROLE_ADMIN')",
  *                  "security_message" = "Accès refusé"
  *          },
  *          "add_apprenant"={
  *                  "route_name"="add_apprenant",
  *                  "method"="POST",
- *                  "denormalization_context"={"groups":"add_user:write"},
  *                  "security" = "is_granted('ROLE_ADMIN')",
  *                  "security_message" = "Accès refusé"
  *          },
  *          "add_cm"={
  *                  "route_name"="add_cm",
  *                  "method"="POST",
- *                  "denormalization_context"={"groups":"add_user:write"},
  *                  "security" = "is_granted('ROLE_ADMIN')",
  *                  "security_message" = "Accès refusé"
  *          },
  *     },
  * itemOperations={
- *         "get",
- *         "PUT"={"security"="is_granted('ROLE_ADMIN')", "security_message"="seul les admins peuvent modifier un profil."},
- *         "delete"={"security"="is_granted('ROLE_ADMIN')", "security_message"="seul les admins peuvent supprimer un utilusateur."}
+ *         "get"={
+ *              "security"="is_granted('ROLE_ADMIN')", 
+ *              "security_message"="seul les admins peuvent modifier un profil."
+ * },
+ *         "edit_user"={
+ *              "route_name"="edit_user",
+ *              "method"="PUT",
+ *              "security"="is_granted('ROLE_ADMIN')", 
+ *              "security_message"="seul les admins peuvent modifier un profil.",
+ *              
+ * },
+ *         "delete"={
+ *              "security"="is_granted('ROLE_ADMIN')", 
+ *              "security_message"="seul les admins peuvent supprimer un utilusateur."
+ * },
  *     }
  * )
  * @ORM\InheritanceType("SINGLE_TABLE")
@@ -86,9 +100,10 @@ class User implements UserInterface
      * pattern="/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/",
      * message="Email Invalide"
      * )
+     * @Groups({"user:read","user:write"})
      */
     protected $email;
-
+    
     private $roles = [];
 
     /**
@@ -101,6 +116,7 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message = "Le prenom ne peut pas etre vide")
      * @Assert\Length(min = 3)
+     * @Groups({"user:read","user:write"})
      */
     private $prenom;
 
@@ -108,6 +124,7 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message = "Le nom ne peut pas etre vide")
      * @Assert\Length(min = 3)
+     * @Groups({"user:read","user:write"})
      */
     private $nom;
 
@@ -118,7 +135,7 @@ class User implements UserInterface
     private $profil;
     /** 
     *@ORM\Column(type="blob", nullable=true)
-    *@Groups({"user:write"})
+    *@Groups({"user:write" ,"user:read"})
     */
     
     private $avatar;
@@ -126,7 +143,9 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="boolean")
      */
-    private $Statut ;
+    private $Statut=false ;
+
+    private $type;
 
 
 
@@ -216,6 +235,13 @@ class User implements UserInterface
 
     public function getAvatar()
     {
+        if($this->avatar)
+        {
+            $data= \stream_get_contents($this->avatar);
+            fclose($this->avatar);
+
+            return base64_encode($data);
+        }
         return $this->avatar;
     }
 
@@ -259,6 +285,18 @@ class User implements UserInterface
     public function setStatut(bool $Statut): self
     {
         $this->Statut = $Statut;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): self
+    {
+        $this->type = $type;
 
         return $this;
     }

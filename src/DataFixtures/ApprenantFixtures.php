@@ -19,20 +19,24 @@ class ApprenantFixtures extends Fixture implements DependentFixtureInterface
     }
     public function load(ObjectManager $manager)
     {
-        // $product = new Product();
-        // $manager->persist($product);
-            $faker = Factory::create('fr_FR');
+
+        $faker = Factory::create('fr_FR');
+
+        for($a=1;$a<=100;$a++){
             $apprenant = new Apprenant();
             $harsh = $this->encoder->encodePassword($apprenant, 'password');
             // apprenant
             $apprenant->setPrenom($faker->firstname);
             $apprenant->setNom($faker->lastname);
+            $apprenant->setAvatar($faker->imageUrl());
             $apprenant->setPassword($harsh);
             $apprenant->setEmail($faker->email);
             $apprenant->setProfil($this->getReference(ProfilFixtures::PROFIL_apprenant));
-
-            // persist
             $manager->persist($apprenant);
+            
+        }
+            
+            // persist
             $manager->flush();
                
 }

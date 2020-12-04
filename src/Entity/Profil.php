@@ -16,8 +16,6 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 
-
-
 /**
  * @ORM\Entity(repositoryClass=ProfilRepository::class)
  * @UniqueEntity("libelle")
@@ -70,7 +68,7 @@ class Profil
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"profil:read", "profil:write"})
+     * @Groups({"profil:read", "profil:write", "user:read"})
      * @Assert\NotBlank(message = "Le libelle ne peut pas etre vide")
      */
     private $libelle;

@@ -28,6 +28,7 @@ class CMFixtures extends Fixture implements DependentFixtureInterface
             // CM
             $CM->setPrenom($faker->firstname);
             $CM->setNom($faker->lastname);
+            $CM->setAvatar($faker->imageUrl());
             $CM->setPassword($harsh);
             $CM->setEmail($faker->email);
             $CM->setProfil($this->getReference(ProfilFixtures::PROFIL_cm));
